@@ -44,21 +44,37 @@ export default function Sidebar({ activeCategory, onCategoryChange, isOpen, onCl
             {logo ? (
               <img src={logo} alt="Logo" className="h-full object-contain" />
             ) : (
-              <div className="text-[20px] font-bold text-[#C5A059] tracking-tighter">
+              <div className="text-[20px] font-bold tracking-tighter" style={{ color: settings.themeColor }}>
                 H1<span className="text-[#3D3A33]">BRINDES</span>
               </div>
             )}
           </div>
-          <button onClick={onClose} className="md:hidden p-2 text-gray-400 hover:text-[#C5A059]">
+          <button 
+            onClick={onClose} 
+            className="md:hidden p-2 text-gray-400 transition-colors hover:opacity-80" 
+            style={{ color: settings.themeColor }}
+          >
             <LayoutGrid className="w-5 h-5 rotate-45" />
           </button>
         </div>
 
         <nav className="flex-1 space-y-0.5 overflow-y-auto">
           {categories.map((category) => {
-            const Icon = CATEGORY_ICONS[category] || Tag;
             const isActive = activeCategory === category;
             
+            // Determine which icon to use based on settings.menuIcon
+            let IconComponent;
+            if (settings.menuIcon === 'diamond') {
+              IconComponent = () => <div className="w-2.5 h-2.5 rotate-45 border-2 shrink-0 border-current" />;
+            } else if (settings.menuIcon === 'bag') {
+               IconComponent = () => <Package className="w-4 h-4 shrink-0" />;
+            } else if (settings.menuIcon === 'custom' && settings.customMenuIcon) {
+              IconComponent = () => <img src={settings.customMenuIcon} className="w-4 h-4 shrink-0 object-contain" />;
+            } else {
+               const OriginalIcon = CATEGORY_ICONS[category] || Tag;
+               IconComponent = () => <OriginalIcon className="w-4 h-4 shrink-0" />;
+            }
+
             return (
               <button
                 key={category}
@@ -68,11 +84,14 @@ export default function Sidebar({ activeCategory, onCategoryChange, isOpen, onCl
                 }}
                 className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-200 group ${
                   isActive 
-                    ? 'bg-[#F9F1DC] text-[#C5A059] font-semibold border-r-4 border-[#C5A059]' 
-                    : 'text-[#4B4840] hover:bg-[#F9F1DC] hover:text-[#C5A059]'
+                    ? 'font-semibold border-r-4' 
+                    : 'text-[#4B4840] hover:bg-[#F9F1DC]'
                 }`}
+                style={isActive ? { backgroundColor: `${settings.themeColor}15`, color: settings.themeColor, borderColor: settings.themeColor } : {}}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#C5A059]' : 'text-[#9C988F] group-hover:text-[#C5A059]'}`} />
+                <div style={isActive ? { color: settings.themeColor } : {}} className={isActive ? '' : 'text-[#9C988F] group-hover:text-current'}>
+                   <IconComponent />
+                </div>
                 <span className="text-[14px]">{category}</span>
               </button>
             );
@@ -80,9 +99,9 @@ export default function Sidebar({ activeCategory, onCategoryChange, isOpen, onCl
         </nav>
 
         <div className="p-6 border-t border-[#F3F0E6]">
-          <div className="bg-[#F9F1DC] rounded-2xl p-4 flex flex-col items-center text-center">
-            <p className="text-xs font-semibold text-[#A6803F]">Precisa de ajuda?</p>
-            <p className="text-[10px] text-[#C5A059] mt-1">Fale com nosso consultor via WhatsApp</p>
+          <div className="rounded-2xl p-4 flex flex-col items-center text-center transition-colors" style={{ backgroundColor: `${settings.themeColor}15` }}>
+            <p className="text-xs font-semibold" style={{ color: settings.themeColor }}>Precisa de ajuda?</p>
+            <p className="text-[10px] mt-1" style={{ color: settings.themeColor, opacity: 0.8 }}>Fale com nosso consultor via WhatsApp</p>
           </div>
         </div>
       </aside>

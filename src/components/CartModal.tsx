@@ -1,5 +1,5 @@
 import { X, Minus, Plus, Send, Calendar, MessageSquare, ListTodo, ShoppingBag } from 'lucide-react';
-import { CartItem } from '../types';
+import { CartItem, AppSettings } from '../types';
 import { useState } from 'react';
 
 interface CartModalProps {
@@ -10,9 +10,10 @@ interface CartModalProps {
   onUpdateTheme: (id: string, theme: string) => void;
   onRemove: (id: string) => void;
   phone: string;
+  settings: AppSettings;
 }
 
-export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, onUpdateTheme, onRemove, phone }: CartModalProps) {
+export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, onUpdateTheme, onRemove, phone, settings }: CartModalProps) {
   const [eventDate, setEventDate] = useState('');
   const [clientName, setClientName] = useState('');
 
@@ -92,7 +93,7 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
       <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl flex flex-col relative z-10 animate-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-[#F3F0E6] flex items-center justify-between bg-[#FDFBF7]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#C5A059] rounded-xl flex items-center justify-center text-white">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: settings.themeColor }}>
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
@@ -109,7 +110,7 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
           {items.length === 0 ? (
             <div className="py-20 text-center flex flex-col items-center">
               <div className="w-20 h-20 bg-[#F9F1DC] rounded-full flex items-center justify-center mb-4">
-                <Plus className="w-10 h-10 text-[#C5A059]" />
+                <Plus className="w-10 h-10 text-[gold-primary]" />
               </div>
               <p className="text-[#3D3A33] font-bold">Seu carrinho está vazio</p>
               <p className="text-[#9C988F] text-sm mt-1">Adicione produtos para solicitar um orçamento.</p>
@@ -117,7 +118,7 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
           ) : (
             <div className="space-y-6">
               <div className="bg-[#FFF9EB] border border-[#F9F1DC] rounded-xl p-4 flex gap-3 items-start">
-                <Calendar className="w-4 h-4 text-[#C5A059] mt-0.5" />
+                <Calendar className="w-4 h-4 text-[gold-primary] mt-0.5" />
                 <p className="text-[11px] text-[#A6803F] leading-relaxed">
                   <strong>Aviso Importante:</strong> O prazo médio de confecção é de <strong>15 dias úteis</strong> após a aprovação da arte. Para urgências, consulte disponibilidade.
                 </p>
@@ -146,21 +147,21 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
                           <div className="flex items-center gap-3 bg-white border border-[#F3F0E6] rounded-lg p-1 w-fit">
                             <button 
                               onClick={() => onUpdateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
-                              className="p-1 hover:bg-[#F9F1DC] rounded transition-colors text-[#C5A059]"
+                              className="p-1 hover:bg-[#F9F1DC] rounded transition-colors text-[gold-primary]"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
                             <span className="font-bold text-[#3D3A33] w-8 text-center">{item.quantity}</span>
                             <button 
                               onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
-                              className="p-1 hover:bg-[#F9F1DC] rounded transition-colors text-[#C5A059]"
+                              className="p-1 hover:bg-[#F9F1DC] rounded transition-colors text-[gold-primary]"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[10px] text-[#9C988F] leading-none">Unid: R$ {getUnitPrice(item).toFixed(2).replace('.', ',')}</span>
-                            <span className="text-xs font-bold text-[#C5A059]">R$ {(getUnitPrice(item) * item.quantity).toFixed(2).replace('.', ',')}</span>
+                            <span className="text-xs font-bold" style={{ color: settings.themeColor }}>R$ {(getUnitPrice(item) * item.quantity).toFixed(2).replace('.', ',')}</span>
                           </div>
                         </div>
                       </div>
@@ -173,7 +174,8 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
                         <input 
                           type="text" 
                           placeholder="Ex: Mickey, Batizado, 15 Anos..." 
-                          className="w-full bg-white border border-[#F3F0E6] rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-[#C5A059] outline-none"
+                          className="w-full bg-white border border-[#F3F0E6] rounded-lg px-3 py-2 text-sm focus:ring-1 outline-none"
+                          style={{ '--tw-ring-color': settings.themeColor } as any}
                           value={item.theme}
                           onChange={(e) => onUpdateTheme(item.product.id, e.target.value)}
                         />
@@ -194,7 +196,8 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
                 </label>
                 <input 
                   type="date" 
-                  className="w-full p-2.5 rounded-xl border border-[#F3F0E6] text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                  className="w-full p-2.5 rounded-xl border border-[#F3F0E6] text-sm outline-none focus:ring-1"
+                  style={{ '--tw-ring-color': settings.themeColor } as any}
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
                 />
@@ -207,7 +210,8 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
                   id="client-name-input"
                   type="text" 
                   placeholder="Como devemos lhe chamar?"
-                  className="w-full p-2.5 rounded-xl border border-[#F3F0E6] text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                  className="w-full p-2.5 rounded-xl border border-[#F3F0E6] text-sm outline-none focus:ring-1"
+                  style={{ '--tw-ring-color': settings.themeColor } as any}
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
                   required
@@ -225,10 +229,14 @@ export default function CartModal({ isOpen, onClose, items, onUpdateQuantity, on
             </div>
             <button 
               onClick={handleWhatsApp}
-              className="w-full bg-[#3D3A33] hover:bg-[#C5A059] text-white rounded-2xl py-4 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl active:scale-95"
+              className="w-full text-white rounded-2xl py-4 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 group/btn relative overflow-hidden"
             >
-              <Send className="w-5 h-5" />
-              SOLICITAR ORÇAMENTO VIA WHATSAPP
+              <div className="absolute inset-0 transition-opacity opacity-100 group-hover/btn:opacity-0 bg-[#3D3A33]" />
+              <div className="absolute inset-0 transition-opacity opacity-0 group-hover/btn:opacity-100" style={{ backgroundColor: settings.themeColor }} />
+              <div className="relative flex items-center gap-3">
+                <Send className="w-5 h-5" />
+                SOLICITAR ORÇAMENTO VIA WHATSAPP
+              </div>
             </button>
             <p className="text-center text-[10px] text-[#9C988F] mt-4 uppercase tracking-[0.2em]">H1 Brindes • Excelência em Personalizados</p>
           </div>

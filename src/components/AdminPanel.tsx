@@ -159,7 +159,7 @@ export default function AdminPanel({
       <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col relative z-10 animate-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-[#F3F0E6] flex items-center justify-between bg-[#FDFBF7]">
           <div className="flex items-center gap-2">
-            <SettingsIcon className="w-5 h-5 text-[#C5A059]" />
+            <SettingsIcon className="w-5 h-5" style={{ color: settings.themeColor }} />
             <h2 className="text-xl font-bold text-[#3D3A33]">Administração do Painel</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-[#F9F1DC] rounded-full transition-colors">
@@ -169,8 +169,8 @@ export default function AdminPanel({
 
         {!isAuthenticated ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-6">
-            <div className="w-16 h-16 bg-[#F9F1DC] rounded-full flex items-center justify-center">
-              <SettingsIcon className="w-8 h-8 text-[#C5A059]" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: `${settings.themeColor}15` }}>
+              <SettingsIcon className="w-8 h-8" style={{ color: settings.themeColor }} />
             </div>
             <div className="text-center">
               <h3 className="text-lg font-bold text-[#3D3A33]">Acesso Restrito</h3>
@@ -186,7 +186,8 @@ export default function AdminPanel({
                   setLoginError(false);
                 }}
                 placeholder="Digite sua senha..."
-                className={`w-full bg-[#FDFBF7] border ${loginError ? 'border-red-500' : 'border-[#F3F0E6]'} rounded-2xl px-6 py-4 text-center text-sm outline-none focus:ring-2 focus:ring-[#C5A059] transition-all`}
+                className={`w-full bg-[#FDFBF7] border ${loginError ? 'border-red-500' : 'border-[#F3F0E6]'} rounded-2xl px-6 py-4 text-center text-sm outline-none focus:ring-1 transition-all`}
+                style={{ '--tw-ring-color': settings.themeColor } as any}
               />
               {loginError && (
                 <div className="text-center space-y-1">
@@ -198,7 +199,8 @@ export default function AdminPanel({
               )}
               <button 
                 type="submit"
-                className="w-full bg-[#3D3A33] hover:bg-[#C5A059] text-white rounded-2xl py-4 font-bold tracking-widest transition-all shadow-lg"
+                className="w-full text-white rounded-2xl py-4 font-bold tracking-widest transition-all shadow-lg hover:opacity-90"
+                style={{ backgroundColor: settings.themeColor }}
               >
                 ENTRAR NO PAINEL
               </button>
@@ -212,31 +214,36 @@ export default function AdminPanel({
               setActiveTab('products');
               setEditingId(null);
             }}
-            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'products' && !editingId ? 'text-[#C5A059] border-b-2 border-[#C5A059]' : 'text-[#9C988F]'}`}
+            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'products' && !editingId ? 'border-b-2' : 'text-[#9C988F]'}`}
+            style={activeTab === 'products' && !editingId ? { color: settings.themeColor, borderColor: settings.themeColor } : {}}
           >
             {editingId ? 'Editando' : 'Novo Produto'}
           </button>
           <button 
             onClick={() => setActiveTab('manage')}
-            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'manage' ? 'text-[#C5A059] border-b-2 border-[#C5A059]' : 'text-[#9C988F]'}`}
+            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'manage' ? 'border-b-2' : 'text-[#9C988F]'}`}
+            style={activeTab === 'manage' ? { color: settings.themeColor, borderColor: settings.themeColor } : {}}
           >
             Gerenciar
           </button>
           <button 
             onClick={() => setActiveTab('banners')}
-            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'banners' ? 'text-[#C5A059] border-b-2 border-[#C5A059]' : 'text-[#9C988F]'}`}
+            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'banners' ? 'border-b-2' : 'text-[#9C988F]'}`}
+            style={activeTab === 'banners' ? { color: settings.themeColor, borderColor: settings.themeColor } : {}}
           >
             Carrossel
           </button>
           <button 
             onClick={() => setActiveTab('categories')}
-            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'categories' ? 'text-[#C5A059] border-b-2 border-[#C5A059]' : 'text-[#9C988F]'}`}
+            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'categories' ? 'border-b-2' : 'text-[#9C988F]'}`}
+            style={activeTab === 'categories' ? { color: settings.themeColor, borderColor: settings.themeColor } : {}}
           >
             Categorias
           </button>
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'settings' ? 'text-[#C5A059] border-b-2 border-[#C5A059]' : 'text-[#9C988F]'}`}
+            className={`flex-1 min-w-[100px] py-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${activeTab === 'settings' ? 'border-b-2' : 'text-[#9C988F]'}`}
+             style={activeTab === 'settings' ? { color: settings.themeColor, borderColor: settings.themeColor } : {}}
           >
             Configurações
           </button>
@@ -267,7 +274,11 @@ export default function AdminPanel({
               <div className="space-y-4">
                 <label className="block">
                   <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Foto do Produto</span>
-                  <div className="mt-2 flex items-center justify-center border-2 border-dashed border-[#E5E1D1] rounded-2xl h-40 overflow-hidden relative group cursor-pointer hover:border-[#C5A059] transition-colors">
+                  <div className="mt-2 flex items-center justify-center border-2 border-dashed border-[#E5E1D1] rounded-2xl h-40 overflow-hidden relative group cursor-pointer transition-colors"
+                       style={{ '--tw-border-opacity': '1', borderColor: 'var(--hover-border)' } as any}
+                       onMouseEnter={e => (e.currentTarget.style.borderColor = settings.themeColor)}
+                       onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E1D1')}
+                  >
                     {image ? (
                       <img src={image} className="w-full h-full object-cover" />
                     ) : (
@@ -283,17 +294,17 @@ export default function AdminPanel({
                 <div className="grid grid-cols-2 gap-4">
                   <label className="block space-y-1">
                     <span className="text-[10px] font-bold text-[#9C988F] uppercase tracking-widest">Nome</span>
-                    <input required value={name} onChange={e => setName(e.target.value)} type="text" className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]" placeholder="Ex: Nécessaire Box Luxo" />
+                    <input required value={name} onChange={e => setName(e.target.value)} type="text" className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1" style={{ '--tw-ring-color': settings.themeColor } as any} placeholder="Ex: Nécessaire Box Luxo" />
                   </label>
                   <label className="block space-y-1">
                     <span className="text-[10px] font-bold text-[#9C988F] uppercase tracking-widest">Código</span>
-                    <input required value={code} onChange={e => setCode(e.target.value)} type="text" className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]" placeholder="Ex: NB-001" />
+                    <input required value={code} onChange={e => setCode(e.target.value)} type="text" className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1" style={{ '--tw-ring-color': settings.themeColor } as any} placeholder="Ex: NB-001" />
                   </label>
                 </div>
 
                 <label className="block space-y-1">
                   <span className="text-[10px] font-bold text-[#9C988F] uppercase tracking-widest">Categoria</span>
-                  <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]">
+                  <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1" style={{ '--tw-ring-color': settings.themeColor } as any}>
                     {settings.categories.filter(c => c !== 'Tudo').map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
@@ -310,7 +321,7 @@ export default function AdminPanel({
                           const newTiers = [...tiers];
                           newTiers[idx].range = e.target.value;
                           setTiers(newTiers);
-                        }} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]" />
+                        }} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1" style={{ '--tw-ring-color': settings.themeColor } as any} />
                       </div>
                       <div className="relative flex-1">
                         <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9C988F]" />
@@ -318,13 +329,13 @@ export default function AdminPanel({
                           const newTiers = [...tiers];
                           newTiers[idx].price = e.target.value;
                           setTiers(newTiers);
-                        }} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]" />
+                        }} className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1" style={{ '--tw-ring-color': settings.themeColor } as any} />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <button type="submit" className="w-full bg-[#3D3A33] hover:bg-[#C5A059] text-white rounded-2xl py-4 font-bold transition-all shadow-lg active:scale-95">
+              <button type="submit" className="w-full text-white rounded-2xl py-4 font-bold transition-all shadow-lg active:scale-95 hover:opacity-90 mt-6" style={{ backgroundColor: settings.themeColor }}>
                 {editingId ? 'SALVAR ALTERAÇÕES' : 'CADASTRAR PRODUTO'}
               </button>
             </form>
@@ -346,7 +357,8 @@ export default function AdminPanel({
                     <div className="flex gap-2">
                       <button 
                         onClick={() => handleEditClick(p)}
-                        className="p-2 bg-white border border-[#E5E1D1] rounded-lg text-[#C5A059] hover:bg-[#F9F1DC] transition-colors"
+                        className="p-2 bg-white border border-[#E5E1D1] rounded-lg transition-colors hover:opacity-80"
+                        style={{ color: settings.themeColor }}
                       >
                         <SettingsIcon size={14} />
                       </button>
@@ -377,7 +389,8 @@ export default function AdminPanel({
                     };
                     onUpdateSettings({ banners: [...settings.banners, newBanner] });
                   }}
-                  className="flex items-center gap-2 bg-[#C5A059] text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#A6803F] transition-colors"
+                  className="flex items-center gap-2 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: settings.themeColor }}
                 >
                   <Plus size={14} /> Novo Banner
                 </button>
@@ -387,7 +400,7 @@ export default function AdminPanel({
                 {settings.banners.map((banner, index) => (
                   <div key={banner.id} className="p-4 bg-[#FDFBF7] rounded-2xl border border-[#F3F0E6] space-y-4">
                     <div className="flex justify-between items-start">
-                      <span className="text-[10px] font-black text-[#C5A059] uppercase tracking-widest">Banner #{index + 1}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: settings.themeColor }}>Banner #{index + 1}</span>
                       <button 
                         onClick={() => {
                           const updated = settings.banners.filter(b => b.id !== banner.id);
@@ -409,7 +422,8 @@ export default function AdminPanel({
                               const updated = settings.banners.map(b => b.id === banner.id ? { ...b, title: e.target.value } : b);
                               onUpdateSettings({ banners: updated });
                             }}
-                            className="w-full bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                            className="w-full bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-sm outline-none focus:ring-1"
+                            style={{ '--tw-ring-color': settings.themeColor } as any}
                           />
                         </label>
                         <label className="block space-y-1">
@@ -420,7 +434,8 @@ export default function AdminPanel({
                               const updated = settings.banners.map(b => b.id === banner.id ? { ...b, subtitle: e.target.value } : b);
                               onUpdateSettings({ banners: updated });
                             }}
-                            className="w-full bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                            className="w-full bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-sm outline-none focus:ring-1"
+                            style={{ '--tw-ring-color': settings.themeColor } as any}
                           />
                         </label>
                       </div>
@@ -434,9 +449,10 @@ export default function AdminPanel({
                               onUpdateSettings({ banners: updated });
                             }}
                             placeholder="URL da imagem..."
-                            className="flex-1 bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-[11px] outline-none focus:ring-1 focus:ring-[#C5A059]"
+                            className="flex-1 bg-white border border-[#E5E1D1] rounded-xl px-4 py-2 text-[11px] outline-none focus:ring-1"
+                            style={{ '--tw-ring-color': settings.themeColor } as any}
                           />
-                          <label className="bg-[#F9F1DC] text-[#A6803F] p-2 rounded-xl cursor-pointer hover:bg-[#F3E6C5]">
+                          <label className="p-2 rounded-xl cursor-pointer transition-opacity hover:opacity-90" style={{ backgroundColor: `${settings.themeColor}15`, color: settings.themeColor }}>
                             <Upload size={16} />
                             <input 
                               type="file" 
@@ -472,11 +488,13 @@ export default function AdminPanel({
                   value={newCat} 
                   onChange={e => setNewCat(e.target.value)}
                   placeholder="Nova categoria..." 
-                  className="flex-1 bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                  className="flex-1 bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1"
+                  style={{ '--tw-ring-color': settings.themeColor } as any}
                 />
                 <button 
                   onClick={handleAddCategory}
-                  className="bg-[#C5A059] text-white px-6 rounded-xl font-bold hover:bg-[#A6803F] transition-colors"
+                  className="text-white px-6 rounded-xl font-bold transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: settings.themeColor }}
                 >
                   ADICIONAR
                 </button>
@@ -516,7 +534,7 @@ export default function AdminPanel({
                   </div>
                   <div className="flex-1 space-y-2">
                     <p className="text-xs text-[#9C988F]">Suba sua logomarca para personalizar o catálogo e o menu lateral.</p>
-                    <label className="inline-block bg-[#F9F1DC] text-[#A6803F] px-4 py-2 rounded-lg text-xs font-bold cursor-pointer hover:bg-[#F3E6C5] transition-colors">
+                    <label className="inline-block px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors hover:opacity-90" style={{ backgroundColor: `${settings.themeColor}15`, color: settings.themeColor }}>
                       TROCAR LOGO
                       <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, true)} accept="image/*" />
                     </label>
@@ -531,11 +549,13 @@ export default function AdminPanel({
                     value={phone} 
                     onChange={e => setPhone(e.target.value)}
                     placeholder="Ex: 5592984180184" 
-                    className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                    className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1"
+                    style={{ '--tw-ring-color': settings.themeColor } as any}
                   />
                   <button 
                     onClick={() => onUpdateSettings({ phone })}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#C5A059] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: settings.themeColor }}
                   >
                     SALVAR
                   </button>
@@ -550,16 +570,104 @@ export default function AdminPanel({
                     value={password} 
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Nova senha..." 
-                    className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[#C5A059]"
+                    className="w-full bg-[#FDFBF7] border border-[#F3F0E6] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1"
+                    style={{ '--tw-ring-color': settings.themeColor } as any}
                   />
                   <button 
                     onClick={() => onUpdateSettings({ adminPassword: password })}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#C5A059] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: settings.themeColor }}
                   >
                     ATUALIZAR
                   </button>
                 </div>
               </div>
+
+               <div className="space-y-4">
+                <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Cor Principal</span>
+                <div className="flex gap-4">
+                  <div className="flex-1 max-w-[120px]">
+                    <div className="relative flex items-center h-[42px]">
+                       <input 
+                        type="color"
+                        value={settings.themeColor} 
+                        onChange={e => onUpdateSettings({ themeColor: e.target.value })}
+                        className="w-full h-full opacity-0 absolute inset-0 cursor-pointer"
+                      />
+                      <div 
+                        className="w-full h-full rounded-xl border-2 border-[#E5E1D1]" 
+                        style={{ backgroundColor: settings.themeColor }}
+                      />
+                    </div>
+                  </div>
+                  <input 
+                    type="text"
+                    value={settings.themeColor} 
+                    onChange={e => onUpdateSettings({ themeColor: e.target.value })}
+                    className="flex-1 bg-[#FDFBF7] border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1"
+                    style={{ borderColor: settings.themeColor, '--tw-ring-color': settings.themeColor } as any}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Ícone do Menu</span>
+                <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => onUpdateSettings({ menuIcon: 'diamond' })}
+                      className={`flex-1 py-3 px-2 rounded-xl border flex flex-col items-center gap-2 transition-all ${settings.menuIcon === 'diamond' ? '' : 'border-[#F3F0E6] bg-white'}`}
+                      style={settings.menuIcon === 'diamond' ? { borderColor: settings.themeColor, color: settings.themeColor, backgroundColor: `${settings.themeColor}15` } : {}}
+                    >
+                      <div className="w-4 h-4 rotate-45 border-2 border-current" />
+                      <span className="text-[10px] font-bold text-center">Losango</span>
+                    </button>
+                    <button
+                      onClick={() => onUpdateSettings({ menuIcon: 'bag' })}
+                      className={`flex-1 py-3 px-2 rounded-xl border flex flex-col items-center gap-2 transition-all ${settings.menuIcon === 'bag' ? '' : 'border-[#F3F0E6] bg-white'}`}
+                      style={settings.menuIcon === 'bag' ? { borderColor: settings.themeColor, color: settings.themeColor, backgroundColor: `${settings.themeColor}15` } : {}}
+                    >
+                      <Package size={18} />
+                      <span className="text-[10px] font-bold text-center">Sacola</span>
+                    </button>
+                    <button
+                      onClick={() => onUpdateSettings({ menuIcon: 'custom' })}
+                      className={`flex-1 py-3 px-2 rounded-xl border flex flex-col items-center gap-2 transition-all ${settings.menuIcon === 'custom' ? '' : 'border-[#F3F0E6] bg-white'}`}
+                      style={settings.menuIcon === 'custom' ? { borderColor: settings.themeColor, color: settings.themeColor, backgroundColor: `${settings.themeColor}15` } : {}}
+                    >
+                      {settings.customMenuIcon ? (
+                        <img src={settings.customMenuIcon} className="w-5 h-5 object-contain" />
+                      ) : (
+                        <Upload size={18} />
+                      )}
+                      <span className="text-[10px] font-bold text-center">Personalizado</span>
+                    </button>
+                </div>
+                {settings.menuIcon === 'custom' && (
+                  <div className="flex items-center gap-4 p-4 bg-[#FDFBF7] rounded-xl border border-[#F3F0E6]">
+                    <div className="w-12 h-12 border-2 border-dashed border-[#E5E1D1] rounded-lg flex items-center justify-center overflow-hidden">
+                      {settings.customMenuIcon ? (
+                        <img src={settings.customMenuIcon} className="w-8 h-8 object-contain" />
+                      ) : (
+                        <Upload className="w-4 h-4 text-[#9C988F]" />
+                      )}
+                    </div>
+                    <label className="flex-1 px-4 py-2 text-center rounded-lg text-xs font-bold transition-opacity hover:opacity-90 cursor-pointer text-white" style={{ backgroundColor: settings.themeColor }}>
+                      FAZER UPLOAD DO ÍCONE
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    onUpdateSettings({ customMenuIcon: event.target?.result as string });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }} />
+                    </label>
+                  </div>
+                )}
+              </div>
+
             </div>
           )}
         </div>

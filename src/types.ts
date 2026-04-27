@@ -38,6 +38,9 @@ export interface AppSettings {
   adminPassword: string;
   categories: string[];
   banners: Banner[];
+  themeColor: string;
+  menuIcon: 'diamond' | 'bag' | 'custom';
+  customMenuIcon?: string;
 }
 
 export type Category = string;

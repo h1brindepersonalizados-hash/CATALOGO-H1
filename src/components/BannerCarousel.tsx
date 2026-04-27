@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { Banner } from '../types';
+import { Banner, AppSettings } from '../types';
 
 interface BannerCarouselProps {
   banners: Banner[];
+  settings: AppSettings;
 }
 
-export default function BannerCarousel({ banners }: BannerCarouselProps) {
+export default function BannerCarousel({ banners, settings }: BannerCarouselProps) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -42,7 +43,8 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
             <motion.span 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="text-[#C5A059] font-bold text-[10px] uppercase tracking-[0.4em] mb-2"
+              className="font-bold text-[10px] uppercase tracking-[0.4em] mb-2"
+              style={{ color: settings.themeColor }}
             >
               Destaques H1 Brindes
             </motion.span>
@@ -72,7 +74,8 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
             <button 
               key={idx}
               onClick={() => setCurrent(idx)}
-              className={`h-1 rounded-full transition-all duration-300 ${current === idx ? 'w-6 bg-[#C5A059]' : 'w-2 bg-white/30 hover:bg-white'}`}
+              className={`h-1 rounded-full transition-all duration-300 ${current === idx ? 'w-6' : 'w-2 bg-white/30 hover:bg-white'}`}
+              style={current === idx ? { backgroundColor: settings.themeColor } : {}}
             />
           ))}
         </div>

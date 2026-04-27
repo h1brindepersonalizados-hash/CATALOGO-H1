@@ -1,20 +1,22 @@
 import React from 'react';
-import { Product } from '../types';
+import { Product, AppSettings } from '../types';
 import { motion } from 'motion/react';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   onImageClick: (image: string) => void;
+  settings: AppSettings;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onImageClick }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onImageClick, settings }) => {
   return (
     <motion.div 
       id={`product-${product.id}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-[12px] p-3 border border-[#E5E1D1] shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col group h-full"
+      className="bg-white rounded-[12px] p-3 border border-[#E5E1D1] shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col group h-full hover:border-[color:var(--hover-color)] transition-colors"
+      style={{ '--hover-color': settings.themeColor } as any}
     >
       <div 
         className="relative h-[140px] bg-[#FDFBF7] rounded-[8px] overflow-hidden mb-3 cursor-zoom-in"
@@ -43,10 +45,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onImage
           <tbody>
             {product.tiers.map((tier, idx) => (
               <tr key={idx} className="border-t border-[#F3F0E6]">
-                <td className={`py-1.5 ${idx === product.tiers.length - 1 ? 'text-[#C5A059] font-semibold' : 'text-[#4B4840]'}`}>
+                <td 
+                  className={`py-1.5 ${idx === product.tiers.length - 1 ? 'font-semibold' : 'text-[#4B4840]'}`}
+                  style={idx === product.tiers.length - 1 ? { color: settings.themeColor } : {}}
+                >
                   {tier.range} un.
                 </td>
-                <td className={`py-1.5 text-right ${idx === product.tiers.length - 1 ? 'text-[#C5A059] font-semibold' : 'text-[#4B4840]'}`}>
+                <td 
+                  className={`py-1.5 text-right ${idx === product.tiers.length - 1 ? 'font-semibold' : 'text-[#4B4840]'}`}
+                  style={idx === product.tiers.length - 1 ? { color: settings.themeColor } : {}}
+                >
                   R$ {tier.price}
                 </td>
               </tr>
@@ -57,9 +65,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onImage
 
       <button 
         onClick={() => onAddToCart(product)}
-        className="w-full mt-4 bg-[#3D3A33] text-white rounded-lg py-2.5 text-[11px] font-bold hover:bg-[#C5A059] transition-colors"
+        className="w-full mt-4 rounded-lg py-2.5 text-[11px] font-bold transition-all relative overflow-hidden group/btn hover:text-white"
+        style={{ color: settings.themeColor }}
       >
-        ADICIONAR AO CARRINHO
+        <span className="relative z-10 transition-colors">Adicionar à Sacola</span>
+         <div className="absolute inset-0 border border-current rounded-lg" style={{ borderColor: settings.themeColor }} />
+        <div className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity -z-0" style={{ backgroundColor: settings.themeColor }} />
       </button>
     </motion.div>
   );

@@ -1,11 +1,13 @@
 import { MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
+import { AppSettings } from '../types';
 
 interface WhatsAppButtonProps {
   phone: string;
+  settings?: AppSettings;
 }
 
-export default function WhatsAppButton({ phone }: WhatsAppButtonProps) {
+export default function WhatsAppButton({ phone, settings }: WhatsAppButtonProps) {
   return (
     <motion.button
       id="whatsapp-button"
@@ -14,7 +16,11 @@ export default function WhatsAppButton({ phone }: WhatsAppButtonProps) {
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-      className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] flex items-center justify-center"
+      className="fixed bottom-8 right-8 z-50 text-white p-4 rounded-full shadow-2xl hover:shadow-2xl flex items-center justify-center transition-shadow"
+      style={{ 
+        backgroundColor: settings?.themeColor || '#25D366',
+        boxShadow: `0 10px 25px ${settings?.themeColor || '#25D366'}50`
+      }}
       onClick={() => window.open(`https://wa.me/${phone}`, '_blank')}
     >
       <MessageCircle size={28} />

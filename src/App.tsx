@@ -157,7 +157,9 @@ export default function App() {
     phone: '5592984180184',
     adminPassword: 'admin', // Default password
     categories: DEFAULT_CATEGORIES,
-    banners: DEFAULT_BANNERS
+    banners: DEFAULT_BANNERS,
+    themeColor: '#C5A059',
+    menuIcon: 'diamond'
   });
 
   // Sync products and settings with state if they change or load from local storage
@@ -266,17 +268,18 @@ export default function App() {
           onCartClick={() => setIsCartOpen(true)}
           cartCount={cartItems.length}
           onAdminClick={() => setIsAdminOpen(true)}
+          settings={settings}
         />
         
         <div className="p-8 pb-32">
           {/* Banner Carousel */}
-          {activeCategory === 'Tudo' && <BannerCarousel banners={settings.banners} />}
+          {activeCategory === 'Tudo' && <BannerCarousel banners={settings.banners} settings={settings} />}
 
           {/* Hero Section */}
           <section className="mb-12 flex justify-between items-end">
             <div>
               <h2 className="text-3xl font-extrabold text-[#3D3A33] tracking-tight mb-2">
-                Olá, <span className="text-[#C5A059]">que bom ter você aqui!</span>
+                Olá, <span style={{ color: settings.themeColor }}>que bom ter você aqui!</span>
               </h2>
               <p className="text-[#9C988F] max-w-2xl leading-relaxed text-sm">
                 Explore nosso catálogo de brindes de luxo. 
@@ -288,13 +291,13 @@ export default function App() {
           {/* Filter Bar */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center p-2 bg-white rounded-lg border border-[#F3F0E6] shadow-sm">
-                <Filter className="w-4 h-4 text-[#C5A059]" />
+              <div className="flex items-center justify-center p-2 bg-white rounded-lg border shadow-sm transition-colors" style={{ borderColor: `${settings.themeColor}30` }}>
+                <Filter className="w-4 h-4" style={{ color: settings.themeColor }} />
               </div>
               <h3 className="font-bold text-[#3D3A33] text-sm md:text-base">
                 {activeCategory === 'Tudo' ? 'Todos os Itens' : activeCategory}
               </h3>
-              <span className="bg-[#F9F1DC] text-[#A6803F] px-2 py-0.5 rounded-full text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${settings.themeColor}15`, color: settings.themeColor }}>
                 {filteredProducts.length} itens
               </span>
             </div>
@@ -308,6 +311,7 @@ export default function App() {
                 product={product} 
                 onAddToCart={addToCart}
                 onImageClick={(img: string) => setSelectedImage(img)}
+                settings={settings}
               />
             ))}
           </div>
@@ -315,8 +319,8 @@ export default function App() {
           {/* Empty State */}
           {filteredProducts.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 bg-[#F9F1DC] rounded-full flex items-center justify-center mb-4">
-                 <ShoppingBag className="w-10 h-10 text-[#C5A059] opacity-50" />
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${settings.themeColor}15` }}>
+                 <ShoppingBag className="w-10 h-10 opacity-50" style={{ color: settings.themeColor }} />
               </div>
               <h3 className="text-xl font-bold text-[#3D3A33]">Nenhum produto encontrado</h3>
               <p className="text-[#9C988F] mt-2">Tente mudar a categoria selecionada.</p>
@@ -324,7 +328,7 @@ export default function App() {
           )}
         </div>
 
-        <WhatsAppButton phone={settings.phone} />
+        <WhatsAppButton phone={settings.phone} settings={settings} />
         
         <CartModal 
           isOpen={isCartOpen}
@@ -334,6 +338,7 @@ export default function App() {
           onUpdateTheme={updateTheme}
           onRemove={removeFromCart}
           phone={settings.phone}
+          settings={settings}
         />
 
         <Lightbox 
@@ -361,7 +366,7 @@ export default function App() {
               exit={{ y: 100, opacity: 0 }}
               className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] bg-[#3D3A33] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[320px]"
             >
-              <div className="w-10 h-10 bg-[#C5A059] rounded-full flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: settings.themeColor }}>
                 <CheckCircle2 className="text-white" />
               </div>
               <div className="flex-1">
@@ -374,7 +379,8 @@ export default function App() {
                     setIsCartOpen(true);
                     setShowToast(false);
                   }}
-                  className="text-[#C5A059] text-xs font-bold uppercase tracking-widest hover:underline"
+                  className="text-xs font-bold uppercase tracking-widest hover:underline"
+                  style={{ color: settings.themeColor }}
                 >
                   Ver Carrinho Agora
                 </button>
