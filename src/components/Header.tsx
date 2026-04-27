@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, Settings, Bell, Menu } from 'lucide-react';
+import { Search, ShoppingCart, User, Bell, Menu } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -45,7 +45,7 @@ export default function Header({ onMenuClick, onCartClick, cartCount, onAdminCli
           className="text-[#4B4840] hover:text-[#C5A059] transition-colors p-2"
           title="Administração"
         >
-          <Settings className="w-6 h-6" />
+          <User className="w-6 h-6" />
         </button>
       </div>
     </header>

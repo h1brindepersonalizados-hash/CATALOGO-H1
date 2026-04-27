@@ -79,15 +79,7 @@ export default function Sidebar({ activeCategory, onCategoryChange, isOpen, onCl
           })}
         </nav>
 
-        <div className="p-6 border-t border-[#F3F0E6] space-y-4">
-          <button 
-            onClick={onAdminClick}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#F9F1DC] text-[#C5A059] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#F3E6C5] transition-all group"
-          >
-            <Settings size={14} className="group-hover:rotate-45 transition-transform" /> 
-            Administração
-          </button>
-          
+        <div className="p-6 border-t border-[#F3F0E6]">
           <div className="bg-[#F9F1DC] rounded-2xl p-4 flex flex-col items-center text-center">
             <p className="text-xs font-semibold text-[#A6803F]">Precisa de ajuda?</p>
             <p className="text-[10px] text-[#C5A059] mt-1">Fale com nosso consultor via WhatsApp</p>

@@ -7,9 +7,8 @@ import CartModal from './components/CartModal';
 import Lightbox from './components/Lightbox';
 import BannerCarousel from './components/BannerCarousel';
 import AdminPanel from './components/AdminPanel';
-import AIChat from './components/AIChat';
 import { Product, Category, CartItem, AppSettings, DEFAULT_CATEGORIES, Banner } from './types';
-import { Filter, ShoppingBag, Settings, CheckCircle2, X, User, ShieldAlert, Clock, Bot } from 'lucide-react';
+import { Filter, ShoppingBag, Settings, CheckCircle2, X, User, ShieldAlert, Clock } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 const MOCK_PRODUCTS: Product[] = [
@@ -326,7 +325,6 @@ export default function App() {
         </div>
 
         <WhatsAppButton phone={settings.phone} />
-        <AIChat products={products} />
         
         <CartModal 
           isOpen={isCartOpen}
