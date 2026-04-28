@@ -124,9 +124,9 @@ export default function AdminPanel({
     setIsAuthenticating(true);
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao fazer login:', error);
-      alert('Falha na autenticação via Google.');
+      alert(`Falha na autenticação via Google: ${error.message}`);
     } finally {
       setIsAuthenticating(false);
     }
