@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { X, Upload, Plus, Trash2, Settings as SettingsIcon, Package, Hash } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Upload, Plus, Trash2, Settings as SettingsIcon, Package, Hash, LogIn, LogOut, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Product, Category, AppSettings } from '../types';
+import { auth, googleProvider } from '../lib/firebase';
+import { signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -27,15 +31,51 @@ export default function AdminPanel({
   const [editingId, setEditingId] = useState<string | null>(null);
   
   // Auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [loginPassword, setLoginPassword] = useState('');
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [loginError, setLoginError] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        // Check if user is admin in Firestore
+        const adminRef = doc(db, 'admins', user.uid);
+        const adminSnap = await getDoc(adminRef);
+        
+        if (adminSnap.exists()) {
+          setIsAdmin(true);
+        } else {
+          try {
+            const configSnap = await getDoc(doc(db, 'settings', 'config'));
+            if (!configSnap.exists() || user.email === 'h1brindepersonalizados@gmail.com') {
+               await setDoc(adminRef, { email: user.email, role: 'admin' });
+               setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
+          } catch (e) {
+            console.error("Admin check error:", e);
+            setIsAdmin(false);
+          }
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Product state
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [productCategory, setProductCategory] = useState<Category>(settings.categories[1] || 'Necessaires');
   const [image, setImage] = useState('');
+  const [image2, setImage2] = useState('');
   const [tiers, setTiers] = useState([{ range: '10-29', price: '' }, { range: '30-49', price: '' }, { range: '50+', price: '' }]);
 
   // Settings state
@@ -45,7 +85,7 @@ export default function AdminPanel({
 
   React.useEffect(() => {
     if (!isOpen) {
-      setIsAuthenticated(false);
+      setIsPasswordVerified(false);
       setLoginPassword('');
       setLoginError(false);
     }
@@ -58,14 +98,35 @@ export default function AdminPanel({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (loginPassword === settings.adminPassword) {
-      setIsAuthenticated(true);
+      setIsPasswordVerified(true);
       setLoginError(false);
     } else {
       setLoginError(true);
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isLogo: boolean = false) => {
+  const handleGoogleLogin = async () => {
+    setIsAuthenticating(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      alert('Falha na autenticação via Google.');
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsPasswordVerified(false);
+    } catch (error) {
+      console.error('Erro ao sair:', error);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isLogo: boolean = false, isImage2: boolean = false) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -73,8 +134,8 @@ export default function AdminPanel({
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800;
-          const MAX_HEIGHT = 600;
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
           let width = img.width;
           let height = img.height;
 
@@ -93,10 +154,12 @@ export default function AdminPanel({
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85); // Increased quality from 0.7 to 0.85
           
           if (isLogo) {
             onUpdateSettings({ logo: dataUrl });
+          } else if (isImage2) {
+            setImage2(dataUrl);
           } else {
             setImage(dataUrl);
           }
@@ -115,6 +178,7 @@ export default function AdminPanel({
       code,
       category: productCategory,
       image: image || 'https://via.placeholder.com/800x600?text=Produto+Sem+Foto',
+      image2: image2 || undefined,
       tiers: tiers.map(t => ({ ...t }))
     };
 
@@ -132,6 +196,7 @@ export default function AdminPanel({
     setName('');
     setCode('');
     setImage('');
+    setImage2('');
     setTiers([{ range: '10-29', price: '' }, { range: '30-49', price: '' }, { range: '50+', price: '' }]);
   };
 
@@ -141,6 +206,7 @@ export default function AdminPanel({
     setCode(p.code);
     setProductCategory(p.category);
     setImage(p.image);
+    setImage2(p.image2 || '');
     setTiers(p.tiers);
     setActiveTab('products');
   };
@@ -167,7 +233,7 @@ export default function AdminPanel({
           </button>
         </div>
 
-        {!isAuthenticated ? (
+        {!isPasswordVerified ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: `${settings.themeColor}15` }}>
               <SettingsIcon className="w-8 h-8" style={{ color: settings.themeColor }} />
@@ -202,12 +268,55 @@ export default function AdminPanel({
                 className="w-full text-white rounded-2xl py-4 font-bold tracking-widest transition-all shadow-lg hover:opacity-90"
                 style={{ backgroundColor: settings.themeColor }}
               >
-                ENTRAR NO PAINEL
+                VERIFICAR SENHA
               </button>
             </form>
           </div>
+        ) : !currentUser ? (
+          <div className="p-12 flex flex-col items-center justify-center space-y-6">
+             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: `${settings.themeColor}15` }}>
+              <LogIn className="w-8 h-8" style={{ color: settings.themeColor }} />
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-[#3D3A33]">Sincronização em Nuvem</h3>
+              <p className="text-xs text-[#9C988F] mt-1">Faça login para salvar as alterações em todos os dispositivos</p>
+            </div>
+            <button 
+              onClick={handleGoogleLogin}
+              disabled={isAuthenticating}
+              className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-[#F3F0E6] rounded-2xl py-4 font-bold tracking-widest transition-all shadow-lg hover:bg-gray-50 disabled:opacity-50"
+            >
+              <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+              {isAuthenticating ? 'CONECTANDO...' : 'ENTRAR COM GOOGLE'}
+            </button>
+          </div>
+        ) : !isAdmin ? (
+          <div className="p-12 flex flex-col items-center justify-center space-y-6">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-red-50">
+              <ShieldAlert className="w-8 h-8 text-red-500" />
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-[#3D3A33]">Acesso não Autorizado</h3>
+              <p className="text-xs text-[#9C988F] mt-1">Você está logado como <strong>{currentUser.email}</strong>, mas não tem permissão de administrador.</p>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="w-full max-w-xs text-white bg-red-500 rounded-2xl py-4 font-bold tracking-widest transition-all shadow-lg hover:bg-red-600"
+            >
+              SAIR DA CONTA
+            </button>
+          </div>
         ) : (
           <>
+            <div className="px-6 py-2 bg-[#FDFBF7] border-b border-[#F3F0E6] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-green-500" />
+                <span className="text-[10px] font-bold text-[#3D3A33]">LOGADO COMO ADM: {currentUser.email}</span>
+              </div>
+              <button onClick={handleLogout} className="flex items-center gap-1 text-[10px] font-bold text-[#9C988F] hover:text-red-500 transition-colors">
+                <LogOut size={12} /> SAIR
+              </button>
+            </div>
             <div className="flex border-b border-[#F3F0E6] bg-white overflow-x-auto">
           <button 
             onClick={() => {
@@ -264,6 +373,7 @@ export default function AdminPanel({
                       setName('');
                       setCode('');
                       setImage('');
+                      setImage2('');
                     }}
                     className="text-[10px] font-bold text-red-500 uppercase hover:underline"
                   >
@@ -272,24 +382,45 @@ export default function AdminPanel({
                 )}
               </div>
               <div className="space-y-4">
-                <label className="block">
-                  <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Foto do Produto</span>
-                  <div className="mt-2 flex items-center justify-center border-2 border-dashed border-[#E5E1D1] rounded-2xl h-40 overflow-hidden relative group cursor-pointer transition-colors"
-                       style={{ '--tw-border-opacity': '1', borderColor: 'var(--hover-border)' } as any}
-                       onMouseEnter={e => (e.currentTarget.style.borderColor = settings.themeColor)}
-                       onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E1D1')}
-                  >
-                    {image ? (
-                      <img src={image} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center text-[#9C988F]">
-                        <Upload className="w-8 h-8 mb-2" />
-                        <span className="text-xs">Clique para subir ou arraste</span>
-                      </div>
-                    )}
-                    <input type="file" onChange={(e) => handleImageUpload(e)} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
-                  </div>
-                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <label className="block">
+                    <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Foto 1 (Principal)</span>
+                    <div className="mt-2 flex items-center justify-center border-2 border-dashed border-[#E5E1D1] rounded-2xl h-40 overflow-hidden relative group cursor-pointer transition-colors"
+                         style={{ '--tw-border-opacity': '1', borderColor: 'var(--hover-border)' } as any}
+                         onMouseEnter={e => (e.currentTarget.style.borderColor = settings.themeColor)}
+                         onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E1D1')}
+                    >
+                      {image ? (
+                        <img src={image} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center text-[#9C988F]">
+                          <Upload className="w-8 h-8 mb-2" />
+                          <span className="text-xs">Subir foto</span>
+                        </div>
+                      )}
+                      <input type="file" onChange={(e) => handleImageUpload(e, false, false)} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                    </div>
+                  </label>
+                  
+                  <label className="block">
+                    <span className="text-xs font-bold text-[#9C988F] uppercase tracking-widest">Foto 2 (Opcional)</span>
+                    <div className="mt-2 flex items-center justify-center border-2 border-dashed border-[#E5E1D1] rounded-2xl h-40 overflow-hidden relative group cursor-pointer transition-colors"
+                         style={{ '--tw-border-opacity': '1', borderColor: 'var(--hover-border)' } as any}
+                         onMouseEnter={e => (e.currentTarget.style.borderColor = settings.themeColor)}
+                         onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E1D1')}
+                    >
+                      {image2 ? (
+                        <img src={image2} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center text-[#9C988F]">
+                          <Upload className="w-8 h-8 mb-2" />
+                          <span className="text-xs">Subir foto 2</span>
+                        </div>
+                      )}
+                      <input type="file" onChange={(e) => handleImageUpload(e, false, true)} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                    </div>
+                  </label>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <label className="block space-y-1">

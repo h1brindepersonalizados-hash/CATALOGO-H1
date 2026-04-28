@@ -8,8 +8,18 @@ import Lightbox from './components/Lightbox';
 import BannerCarousel from './components/BannerCarousel';
 import AdminPanel from './components/AdminPanel';
 import { Product, Category, CartItem, AppSettings, DEFAULT_CATEGORIES, Banner } from './types';
-import { Filter, ShoppingBag, Settings, CheckCircle2, X, User, ShieldAlert, Clock } from 'lucide-react';
+import { Filter, ShoppingBag, Settings, CheckCircle2, X, User, ShieldAlert, Clock, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { 
+  getSettings, 
+  saveSettings, 
+  getProducts, 
+  saveProduct, 
+  deleteProductFromStore,
+  testFirestoreConnection
+} from './lib/firestoreService';
+import { onSnapshot, collection, doc } from 'firebase/firestore';
+import { db } from './lib/firebase';
 
 const MOCK_PRODUCTS: Product[] = [
   {
@@ -149,65 +159,93 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]); // Initialize empty
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<AppSettings>({
     logo: '',
     phone: '5592984180184',
-    adminPassword: 'admin', // Default password
+    adminPassword: 'admin',
     categories: DEFAULT_CATEGORIES,
     banners: DEFAULT_BANNERS,
     themeColor: '#C5A059',
     menuIcon: 'diamond'
   });
 
-  // Sync products and settings with state if they change or load from local storage
+  // Initial load and real-time listeners
   useEffect(() => {
-    try {
-      const savedProducts = localStorage.getItem('h1_products');
-      if (savedProducts) {
-        const parsed = JSON.parse(savedProducts);
-        if (Array.isArray(parsed)) setProducts(parsed);
-      }
+    testFirestoreConnection();
 
-      const savedSettings = localStorage.getItem('h1_settings');
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        setSettings(prev => ({ 
-          ...prev, 
-          ...parsed,
-          adminPassword: parsed.adminPassword || prev.adminPassword
-        }));
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const [cloudSettings, cloudProducts] = await Promise.all([
+          getSettings(),
+          getProducts()
+        ]);
+
+        if (cloudSettings) {
+          setSettings(cloudSettings);
+        } else {
+          // First time setup: save defaults to cloud
+          await saveSettings(settings);
+        }
+
+        if (cloudProducts && cloudProducts.length > 0) {
+          setProducts(cloudProducts);
+        } else {
+          // First time setup: save mock products to cloud
+          await Promise.all(MOCK_PRODUCTS.map(p => saveProduct(p)));
+          setProducts(MOCK_PRODUCTS);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do Firebase:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Falha ao carregar dados do localStorage:', error);
-    }
+    };
+
+    loadInitialData();
+
+    // Listen for real-time updates for settings
+    const unsubscribeSettings = onSnapshot(doc(db, 'settings', 'config'), (doc) => {
+      if (doc.exists()) {
+        setSettings(doc.data() as AppSettings);
+      }
+    });
+
+    // Listen for real-time updates for products
+    const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
+      const updatedProducts = snapshot.docs.map(doc => doc.data() as Product);
+      setProducts(updatedProducts);
+    });
+
+    return () => {
+      unsubscribeSettings();
+      unsubscribeProducts();
+    };
   }, []);
 
-  const handleUpdateSettings = (newSettings: Partial<AppSettings>) => {
+  const handleUpdateSettings = async (newSettings: Partial<AppSettings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
-    localStorage.setItem('h1_settings', JSON.stringify(updated));
+    await saveSettings(updated);
   };
 
-  const handleAddProduct = (newProduct: Product) => {
-    const updated = [newProduct, ...products];
-    setProducts(updated);
-    localStorage.setItem('h1_products', JSON.stringify(updated));
+  const handleAddProduct = async (newProduct: Product) => {
+    // Note: State will be updated by onSnapshot listener
+    await saveProduct(newProduct);
   };
 
-  const handleUpdateProduct = (updatedProduct: Product) => {
-    const updated = products.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-    setProducts(updated);
-    localStorage.setItem('h1_products', JSON.stringify(updated));
+  const handleUpdateProduct = async (updatedProduct: Product) => {
+    // Note: State will be updated by onSnapshot listener
+    await saveProduct(updatedProduct);
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
-      const updated = products.filter(p => p.id !== id);
-      setProducts(updated);
-      localStorage.setItem('h1_products', JSON.stringify(updated));
+      await deleteProductFromStore(id);
     }
   };
 
@@ -245,6 +283,17 @@ export default function App() {
   const removeFromCart = (id: string) => {
     setCartItems(prev => prev.filter(item => item.product.id !== id));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-[#C5A059]" />
+          <p className="text-[#9C988F] font-bold animate-pulse">Carregando catálogo...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">

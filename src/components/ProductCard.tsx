@@ -19,16 +19,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onImage
       style={{ '--hover-color': settings.themeColor } as any}
     >
       <div 
-        className="relative h-[140px] bg-[#FDFBF7] rounded-[8px] overflow-hidden mb-3 cursor-zoom-in"
-        onClick={() => onImageClick(product.image)}
+        className="relative h-[140px] bg-[#FDFBF7] rounded-[8px] overflow-hidden mb-3 group"
       >
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="flex h-full w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            onClick={() => onImageClick(product.image)}
+            className="w-full h-full shrink-0 snap-center object-cover cursor-zoom-in"
+            referrerPolicy="no-referrer"
+          />
+          {product.image2 && (
+            <img 
+              src={product.image2} 
+              alt={`${product.name} 2`} 
+              onClick={() => onImageClick(product.image2!)}
+              className="w-full h-full shrink-0 snap-center object-cover cursor-zoom-in"
+              referrerPolicy="no-referrer"
+            />
+          )}
+        </div>
+        
+        {product.image2 && (
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+            <div className="w-4 h-1 rounded-full bg-white/80 shadow-sm" />
+            <div className="w-4 h-1 rounded-full bg-white/40 shadow-sm" />
+          </div>
+        )}
+        
+        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </div>
 
       <div className="flex-1">

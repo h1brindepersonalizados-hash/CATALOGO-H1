@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Define what an admin is. For this app, we characterize an admin 
+    // as someone whose UID is in the /admins/ collection.
+    // OR we can allow the first user who logs in to become an admin if none exists.
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // 1. Products Collection
+    function isValidProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'code', 'category', 'image', 'tiers'])
+        && data.id is string && data.id.size() <= 100
+        && data.name is string && data.name.size() <= 200
+        && data.code is string && data.code.size() <= 50
+        && data.category is string && data.category.size() <= 100
+        && data.image is string && data.image.size() <= 2000
+        && (!data.keys().contains('image2') || (data.image2 is string && data.image2.size() <= 2000))
+        && data.tiers is list && data.tiers.size() <= 20;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidProduct(incoming()) && productId == incoming().id;
+      allow update: if isAdmin() && isValidProduct(incoming()) 
+                     && incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    // 2. Settings Collection
+    function isValidSettings(data) {
+      return data.keys().hasAll(['logo', 'phone', 'adminPassword', 'categories', 'banners', 'themeColor', 'menuIcon'])
+        && data.logo is string && data.logo.size() <= 2000
+        && data.phone is string && data.phone.size() <= 20
+        && data.adminPassword is string && data.adminPassword.size() <= 100
+        && data.categories is list && data.categories.size() <= 50
+        && data.banners is list && data.banners.size() <= 10
+        && data.themeColor is string && data.themeColor.size() <= 20
+        && data.menuIcon in ['diamond', 'bag', 'custom'];
+    }
+
+    match /settings/{configId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidSettings(incoming());
+    }
+
+    // 3. Admin assignment (Special rule to bootstrap the first admin)
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (
+        request.auth.token.email == 'h1brindepersonalizados@gmail.com' || isAdmin()
+      );
+    }
+  }
+}

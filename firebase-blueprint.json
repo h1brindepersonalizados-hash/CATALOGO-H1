@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A product in the catalog.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "category": { "type": "string" },
+        "image": { "type": "string" },
+        "image2": { "type": "string" },
+        "tiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "range": { "type": "string" },
+              "price": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["id", "name", "code", "category", "image", "tiers"]
+    },
+    "AppSettings": {
+      "title": "App Settings",
+      "description": "Global application settings.",
+      "type": "object",
+      "properties": {
+        "logo": { "type": "string" },
+        "phone": { "type": "string" },
+        "adminPassword": { "type": "string" },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "banners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "subtitle": { "type": "string" },
+              "image": { "type": "string" }
+            }
+          }
+        },
+        "themeColor": { "type": "string" },
+        "menuIcon": { "type": "string", "enum": ["diamond", "bag", "custom"] },
+        "customMenuIcon": { "type": "string" }
+      },
+      "required": ["logo", "phone", "adminPassword", "categories", "banners", "themeColor", "menuIcon"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collection of products."
+    },
+    "/settings/config": {
+      "schema": "AppSettings",
+      "description": "Single document for app configuration."
+    }
+  }
+}

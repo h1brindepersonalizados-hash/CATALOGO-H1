@@ -9,6 +9,7 @@ export interface Product {
   code: string;
   category: string;
   image: string;
+  image2?: string;
   tiers: PriceTier[];
 }
 
