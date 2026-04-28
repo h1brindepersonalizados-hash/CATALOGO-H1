@@ -187,16 +187,11 @@ export default function App() {
 
         if (cloudSettings) {
           setSettings(cloudSettings);
-        } else {
-          // First time setup: save defaults to cloud
-          await saveSettings(settings);
         }
 
         if (cloudProducts && cloudProducts.length > 0) {
           setProducts(cloudProducts);
         } else {
-          // First time setup: save mock products to cloud
-          await Promise.all(MOCK_PRODUCTS.map(p => saveProduct(p)));
           setProducts(MOCK_PRODUCTS);
         }
       } catch (error) {

@@ -38,11 +38,26 @@ export default function AdminPanel({
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [loginError, setLoginError] = useState(false);
 
+  const [localThemeColor, setLocalThemeColor] = useState(settings.themeColor);
+
+  useEffect(() => {
+    setLocalThemeColor(settings.themeColor);
+  }, [settings.themeColor]);
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalThemeColor(e.target.value);
+  };
+
+  const handleColorSave = () => {
+    if (localThemeColor !== settings.themeColor) {
+      onUpdateSettings({ themeColor: localThemeColor });
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
-        // Check if user is admin in Firestore
         const adminRef = doc(db, 'admins', user.uid);
         const adminSnap = await getDoc(adminRef);
         
@@ -170,7 +185,7 @@ export default function AdminPanel({
     }
   };
 
-  const handleProductSubmit = (e: React.FormEvent) => {
+  const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const productData: Product = {
       id: editingId || Date.now().toString(),
@@ -178,26 +193,31 @@ export default function AdminPanel({
       code,
       category: productCategory,
       image: image || 'https://via.placeholder.com/800x600?text=Produto+Sem+Foto',
-      image2: image2 || undefined,
+      ...(image2 ? { image2 } : {}),
       tiers: tiers.map(t => ({ ...t }))
     };
 
-    if (editingId) {
-      onUpdateProduct(productData);
-      alert('Produto atualizado com sucesso!');
-      setEditingId(null);
-      setActiveTab('manage');
-    } else {
-      onAddProduct(productData);
-      alert('Produto cadastrado com sucesso!');
-    }
+    try {
+      if (editingId) {
+        await onUpdateProduct(productData);
+        alert('Produto atualizado com sucesso!');
+        setEditingId(null);
+        setActiveTab('manage');
+      } else {
+        await onAddProduct(productData);
+        alert('Produto cadastrado com sucesso!');
+      }
 
-    // Reset
-    setName('');
-    setCode('');
-    setImage('');
-    setImage2('');
-    setTiers([{ range: '10-29', price: '' }, { range: '30-49', price: '' }, { range: '50+', price: '' }]);
+      // Reset
+      setName('');
+      setCode('');
+      setImage('');
+      setImage2('');
+      setTiers([{ range: '10-29', price: '' }, { range: '30-49', price: '' }, { range: '50+', price: '' }]);
+    } catch (err: any) {
+      console.error(err);
+      alert('Erro ao salvar produto. Verifique suas permissões ou contate o suporte.');
+    }
   };
 
   const handleEditClick = (p: Product) => {
@@ -721,22 +741,24 @@ export default function AdminPanel({
                     <div className="relative flex items-center h-[42px]">
                        <input 
                         type="color"
-                        value={settings.themeColor} 
-                        onChange={e => onUpdateSettings({ themeColor: e.target.value })}
+                        value={localThemeColor} 
+                        onChange={handleColorChange}
+                        onBlur={handleColorSave}
                         className="w-full h-full opacity-0 absolute inset-0 cursor-pointer"
                       />
                       <div 
                         className="w-full h-full rounded-xl border-2 border-[#E5E1D1]" 
-                        style={{ backgroundColor: settings.themeColor }}
+                        style={{ backgroundColor: localThemeColor }}
                       />
                     </div>
                   </div>
                   <input 
                     type="text"
-                    value={settings.themeColor} 
-                    onChange={e => onUpdateSettings({ themeColor: e.target.value })}
+                    value={localThemeColor} 
+                    onChange={handleColorChange}
+                    onBlur={handleColorSave}
                     className="flex-1 bg-[#FDFBF7] border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1"
-                    style={{ borderColor: settings.themeColor, '--tw-ring-color': settings.themeColor } as any}
+                    style={{ borderColor: localThemeColor, '--tw-ring-color': localThemeColor } as any}
                   />
                 </div>
               </div>
